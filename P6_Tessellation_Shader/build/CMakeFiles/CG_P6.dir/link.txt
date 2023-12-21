@@ -1,0 +1,1 @@
+/usr/bin/g++ -g CMakeFiles/CG_P6.dir/src/main.cpp.o CMakeFiles/CG_P6.dir/src/shader.cpp.o CMakeFiles/CG_P6.dir/src/scene.cpp.o CMakeFiles/CG_P6.dir/src/icosahedron.cpp.o -o CG_P6  -lm -lglfw -lGLEW -lGL 
