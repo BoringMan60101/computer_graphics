@@ -1,3 +1,0 @@
-/home/sasha/Desktop/My_CG/P6_In_Progress/build/CMakeFiles/CG_P5.dir
-/home/sasha/Desktop/My_CG/P6_In_Progress/build/CMakeFiles/edit_cache.dir
-/home/sasha/Desktop/My_CG/P6_In_Progress/build/CMakeFiles/rebuild_cache.dir

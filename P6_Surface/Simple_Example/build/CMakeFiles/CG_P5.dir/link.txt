@@ -1,1 +1,0 @@
-/usr/bin/g++ -g -rdynamic CMakeFiles/CG_P5.dir/main.cpp.o -o CG_P5  -lm -lglfw -lGLEW -lGL 
