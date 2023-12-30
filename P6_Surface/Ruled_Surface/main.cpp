@@ -28,21 +28,34 @@ void getShader(GLuint *shader, char *path, int typeShader);
 void getShaderProgram(GLuint *shaderProgram, int n, ...);
 
 
+
+// Used for setting random color components
 float myRand() {
     return  rand() / (RAND_MAX + 1.0);
 }
 
-float Fx(double u) {
-    return cos(4.0 * M_PI * u) * 0.75;
-    //return u - 0.5;
+
+// Functions that determines spatial curve №1
+float F1x(double u) {
+    return cos(4.0 * M_PI * u) * 0.5;
 }
-float Fy(double u) {
-    return sin(4.0 * M_PI * u) * 0.75;
-    //return 0.0;
+float F1y(double u) {
+    return sin(4.0 * M_PI * u) * 0.5;
 }
-float Fz(double u) {
-    //return 0.0;
-    return -0.7 + 1.4*u; // U in [-0.7 : 0.7]
+float F1z(double u) {
+    return -0.5 + 1.0*u; 
+}
+
+
+// Functions that determines spatial curve №2
+float F2x(double u) {
+    return 0.2 * cos(2.0 * M_PI * u);
+}
+float F2y(double u) {
+    return 0.2 * sin(2.0 * M_PI * u);
+}
+float F2z(double u) {
+    return 0.0*u;
 }
 
 
@@ -107,38 +120,54 @@ int main()
     srand(time(nullptr));
 
     // setting up surface vertexes data
-    const int Nu = 100, Nv = 100;
+    const int Nu = 50, Nv = 50;
     const double du = 1.0 / Nu, dv = 1.0/ Nv;
     float points[3 * (Nu+1) * (Nv+1)]; 
     float colors[3 * (Nu+1) * (Nv+1)]; 
     GLuint indices[2 * 3 * Nu * Nv];
 
+    
+    // evaluating points coordinates for curve №1
     const glm::vec3 P1 = glm::vec3(0.0, 0.0, 0.0);
     const glm::vec3 P2 = glm::vec3(0.0, 0.0, 0.3);
-
-    // evaluating points coordinates 
     for(int i = 0; i <= Nu; i++)
         for(int j = 0; j <= Nv; j++)
         {
             double u = i*du;
             double v = j*dv;
             int idx = i*3*(Nv+1) + 3*j;
-            points[idx + 0] = Fx(u) + (P1.x + (P2.x - P1.x)*v); // X_ij = X(Ui, Vj)
-            points[idx + 1] = Fy(u) + (P1.y + (P2.y - P1.y)*v); // Y_ij = Y(Ui, Vj)
-            points[idx + 2] = Fz(u) + (P1.z + (P2.z - P1.z)*v); // Z_ij = Z(Ui, Vj)
+            points[idx + 0] = F1x(u) + (P1.x + (P2.x - P1.x)*v); // X_ij = X(Ui, Vj)
+            points[idx + 1] = F1y(u) + (P1.y + (P2.y - P1.y)*v); // Y_ij = Y(Ui, Vj)
+            points[idx + 2] = F1z(u) + (P1.z + (P2.z - P1.z)*v); // Z_ij = Z(Ui, Vj)
         }
+    
+
+    /*
+    // evaluating points coordinates for curve №2
+    const float H = 0.5;
+    for(int i = 0; i <= Nu; i++)
+        for(int j = 0; j <= Nv; j++)
+        {
+            double u = i*du;
+            double v = j*dv;
+            int idx = i*3*(Nv+1) + 3*j;
+            points[idx + 0] = F2x(u) * v; // X_ij = X(Ui, Vj)
+            points[idx + 1] = F2y(u) * v; // Y_ij = Y(Ui, Vj)
+            points[idx + 2] = H * v; // Z_ij = Z(Ui, Vj)
+        }
+    */
 
     // setting points colors 
     for(int i = 0; i <= Nu; i++)
         for(int j = 0; j <= Nv; j++)
         {
             int idx = i*3*(Nv+1) + 3*j;
-            //colors[idx + 0] = myRand(); // Red
-            //colors[idx + 1] = myRand(); // Green
-            //colors[idx + 2] = myRand(); // Blue
-            colors[idx + 0] = 0.25; // Red
-            colors[idx + 1] = 0.75; // Green
-            colors[idx + 2] = 0.5; // Blue
+            colors[idx + 0] = myRand(); // Red
+            colors[idx + 1] = myRand(); // Green
+            colors[idx + 2] = myRand(); // Blue
+            //colors[idx + 0] = 0.25; // Red
+            //colors[idx + 1] = 0.75; // Green
+            //colors[idx + 2] = 0.5; // Blue
         }
     
     
@@ -186,7 +215,7 @@ int main()
 
     glBindVertexArray(0);
 
-    // render loop
+    // render (drawing surface) loop
     // -----------
 
     while (!glfwWindowShouldClose(window))
@@ -205,29 +234,26 @@ int main()
                            0.0f, 1.0f, 0.0f, 0.0f,
                            0.0f, 0.0f, 1.0f, 0.0f,
                            0.0f, 0.0f, 0.0f, 1.0f); 
-        //model = glm::scale(modelMat, glm::vec3(1.0f, 1.0f, 1.0f));
+        modelMat = glm::scale(modelMat, glm::vec3(1.0f, 1.0f, 1.0f));
         
-        // 1st variant
+
+
+        // 1st drawing approach
         //float angle = 0.0f;
         float angle = 0.5f * (float)glfwGetTime();
-        modelMat = glm::rotate(modelMat, angle, glm::vec3(1.0, 0, 0));
-        
-        // 2nd variant
+        modelMat = glm::rotate(modelMat, angle, glm::vec3(1.0, 1.0, 1.0));
+        // --------------------------------------------------------------------
+
+        // 2nd drawing approach
         //modelMat = glm::rotate(modelMat, rotationAngle, rotationAxisVector);
+        // --------------------------------------------------------------------
+
         GLint ulMatModel = glGetUniformLocation(shaderProgram, "modelMatrix"); // ul - uniform location
         glUniformMatrix4fv(ulMatModel, 1, GL_FALSE, &modelMat[0][0]);
-
-
 
         // Drawing with IBO indices
         glBindVertexArray(surfaceVAO);
         glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, nullptr);
-
-        // Alternative (IBO object and an array with indexes are not used here)
-        // Automative triangles generation may be unsuitable 
-        //glBindVertexArray(surfaceVAO);
-        //glDrawArrays(GL_TRIANGLE_FAN, 0, (Nu+1)*(Nv+1));
-
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
